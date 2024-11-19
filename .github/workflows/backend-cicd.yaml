@@ -63,10 +63,3 @@ jobs:
           overwrite: true
           if-no-files-found: error
       
-      - name: Check sonar-project.properties
-        run: cat sonar-project.properties
-
-      - name: SonarCloud Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar
