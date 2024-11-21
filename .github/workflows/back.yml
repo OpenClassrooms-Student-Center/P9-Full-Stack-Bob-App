@@ -1,0 +1,93 @@
+name: Back-end CI/CD with coverage report, SonarCloud analysis & Docker image
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'back/**'
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # 1. Validates tests on a pull request
+  backend-testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install Dependencies and Run Tests
+        working-directory: back
+        run: |
+          mvn clean install
+          mvn test jacoco:report
+
+      - name: Upload Code Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: back/target/site/jacoco/
+
+  # 2. Code quality verification with SonarCloud and Docker build
+  sonarcloud-analysis:
+    needs: backend-testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        working-directory: back
+        run: mvn clean package
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: back
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-back
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+
+  # 4. Docker build and push
+  docker-build-and-push:
+    needs: sonarcloud-analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t bobapp-back ./back
+          docker tag bobapp-back ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
