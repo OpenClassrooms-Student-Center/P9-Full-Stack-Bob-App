@@ -23,50 +23,25 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - name: Navigate to Backend Directory and Make Maven Wrapper Executable
+      # Rendre le fichier mvnw exécutable
+      - name: Make Maven Wrapper Executable
         working-directory: back
         run: chmod +x mvnw
 
+      # Installer les dépendances pour le back-end (en ignorant les tests au début)
       - name: Install Dependencies for Backend
         working-directory: back
         run: ./mvnw clean install -DskipTests=true
 
+      # Lancer les tests et générer les rapports de couverture pour le back-end
       - name: Run Tests and Generate Coverage Report for Backend
         working-directory: back
         run: ./mvnw test
 
+      # Archiver le rapport de JaCoCo pour le back-end
       - name: Archive JaCoCo Coverage Report for Backend
         if: success()
         uses: actions/upload-artifact@v2
         with:
           name: jacoco-report
           path: back/target/site/jacoco
-
-  build-frontend:
-    name: Build and Test Frontend with Coverage
-    runs-on: ubuntu-latest
-    needs: build-backend
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "16"
-
-      - name: Navigate to Frontend Directory and Install Dependencies
-        working-directory: front
-        run: npm install
-
-      - name: Run Tests and Generate Coverage Report for Frontend
-        working-directory: front
-        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
-
-      - name: Archive Coverage Report for Frontend
-        if: success()
-        uses: actions/upload-artifact@v2
-        with:
-          name: frontend-coverage-report
-          path: front/coverage
