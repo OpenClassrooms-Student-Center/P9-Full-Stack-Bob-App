@@ -45,3 +45,35 @@ jobs:
         with:
           name: jacoco-report
           path: back/target/site/jacoco
+
+  build-frontend:
+    name: Build and Test Frontend with Coverage
+    runs-on: ubuntu-latest
+    needs: build-backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+
+      # Installer les dépendances pour le front-end
+      - name: Install Dependencies for Frontend
+        working-directory: front
+        run: npm install
+
+      # Lancer les tests et générer les rapports de couverture pour le front-end
+      - name: Run Tests and Generate Coverage Report for Frontend
+        working-directory: front
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI --code-coverage
+
+      # Archiver le rapport de couverture pour le front-end
+      - name: Archive Coverage Report for Frontend
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: front/coverage
