@@ -24,8 +24,9 @@ jobs:
         with:
           distribution: "adopt"
           java-version: "17"
+          check-latest: true
 
-      # Vérifier la version de Java
+      # Vérifier la version de Java - S'assurer que c'est bien Java 17
       - name: Verify Java Version
         run: java -version
 
