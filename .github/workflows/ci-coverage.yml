@@ -76,7 +76,7 @@ jobs:
       # Lancer les tests et générer les rapports de couverture pour le front-end
       - name: Run Tests and Generate Coverage Report for Frontend
         working-directory: front
-        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --single-run --code-coverage
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
       # Archiver le rapport de couverture pour le front-end
       - name: Archive Coverage Report for Frontend
