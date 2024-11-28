@@ -23,26 +23,24 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Navigate to Backend Directory and Make Maven Wrapper Executable
+        working-directory: back
+        run: chmod +x mvnw
 
-      - name: Install Dependencies
-        run: ./mvnw install -DskipTests=true
+      - name: Install Dependencies for Backend
+        working-directory: back
+        run: ./mvnw clean install -DskipTests=true
 
-      - name: Run Tests and Generate Coverage Report
+      - name: Run Tests and Generate Coverage Report for Backend
+        working-directory: back
         run: ./mvnw test
 
-      - name: Archive JaCoCo Coverage Report
+      - name: Archive JaCoCo Coverage Report for Backend
         if: success()
         uses: actions/upload-artifact@v2
         with:
           name: jacoco-report
-          path: target/site/jacoco
+          path: back/target/site/jacoco
 
   build-frontend:
     name: Build and Test Frontend with Coverage
@@ -58,17 +56,17 @@ jobs:
         with:
           node-version: "16"
 
-      - name: Install Dependencies
-        working-directory: frontend
+      - name: Navigate to Frontend Directory and Install Dependencies
+        working-directory: front
         run: npm install
 
-      - name: Run Tests and Generate Coverage Report
-        working-directory: frontend
+      - name: Run Tests and Generate Coverage Report for Frontend
+        working-directory: front
         run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
 
-      - name: Archive Coverage Report
+      - name: Archive Coverage Report for Frontend
         if: success()
         uses: actions/upload-artifact@v2
         with:
           name: frontend-coverage-report
-          path: frontend/coverage
+          path: front/coverage
