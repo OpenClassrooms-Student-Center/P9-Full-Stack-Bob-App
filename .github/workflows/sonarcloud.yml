@@ -30,6 +30,10 @@ jobs:
       - name: Verify Java Version
         run: java -version
 
+      # Ajouter Java au PATH pour qu'il soit utilisé par SonarScanner
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=${{ env.JAVA_HOME }}" >> $GITHUB_ENV
+
       # Installer Node.js pour le front-end
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -50,12 +54,22 @@ jobs:
           cd front
           npm install
 
+      # Télécharger et décompresser Sonar Scanner
+      - name: Download Sonar Scanner
+        run: |
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip
+          Expand-Archive -Path sonar-scanner.zip -DestinationPath $PWD
+
       # Lancer l'analyse SonarCloud avec Sonar Scanner
       - name: Run SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: cmd
         run: |
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-windows.zip
-          tar -xf sonar-scanner.zip
-          sonar-scanner-4.6.2.2472-windows\bin\sonar-scanner.bat -D"sonar.organization=notmga" -D"sonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD" -D"sonar.sources=." -D"sonar.host.url=https://sonarcloud.io" -D"sonar.login=%SONAR_TOKEN%"
+          sonar-scanner-4.6.2.2472-windows\bin\sonar-scanner.bat ^
+            -D"sonar.organization=notmga" ^
+            -D"sonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD" ^
+            -D"sonar.sources=." ^
+            -D"sonar.host.url=https://sonarcloud.io" ^
+            -D"sonar.login=%SONAR_TOKEN%" ^
+            -D"sonar.java.binaries=back/target/classes"
