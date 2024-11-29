@@ -24,6 +24,7 @@ jobs:
       # Construire l'image Docker (Front-end et Back-end dans le même Dockerfile)
       - name: Build Docker Image
         run: |
+          cd front
           docker build -t notmga/sonarprojet-frontend-backend:latest .
 
       # Pousser l'image Docker sur Docker Hub
