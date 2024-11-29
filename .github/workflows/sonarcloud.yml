@@ -11,7 +11,7 @@ on:
 jobs:
   sonarqube:
     name: SonarCloud Analysis
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Récupérer le code du repository
@@ -40,14 +40,12 @@ jobs:
 
       # Installer les dépendances pour le backend
       - name: Install Backend Dependencies
-        shell: cmd
         run: |
           cd back
-          mvnw.cmd clean install
+          ./mvnw clean install
 
       # Installer les dépendances pour le front-end
       - name: Install Frontend Dependencies
-        shell: cmd
         run: |
           cd front
           npm install
