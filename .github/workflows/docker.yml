@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   push:
@@ -21,12 +21,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # Construire l'image Docker
+      # Construire l'image Docker (Front-end et Back-end dans le même Dockerfile)
       - name: Build Docker Image
         run: |
-          docker build -t notmga/sonarprojet:latest .
+          docker build -t notmga/sonarprojet-frontend-backend:latest .
 
       # Pousser l'image Docker sur Docker Hub
       - name: Push Docker Image
         run: |
-          docker push notmga/sonarprojet:latest
+          docker push notmga/sonarprojet-frontend-backend:latest
