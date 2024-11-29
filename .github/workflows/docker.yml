@@ -21,13 +21,22 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # Construire l'image Docker (Front-end et Back-end dans le même Dockerfile)
-      - name: Build Docker Image
+      # Construire l'image Docker pour le frontend
+      - name: Build Frontend Docker Image
         run: |
-          cd front
-          docker build -t notmga/sonarprojet-frontend-backend:latest .
+          docker build -f front/Dockerfile -t notmga/sonarprojet-frontend:latest front
 
-      # Pousser l'image Docker sur Docker Hub
-      - name: Push Docker Image
+      # Construire l'image Docker pour le backend
+      - name: Build Backend Docker Image
         run: |
-          docker push notmga/sonarprojet-frontend-backend:latest
+          docker build -f back/Dockerfile -t notmga/sonarprojet-backend:latest back
+
+      # Pousser l'image Docker du frontend sur Docker Hub
+      - name: Push Frontend Docker Image
+        run: |
+          docker push notmga/sonarprojet-frontend:latest
+
+      # Pousser l'image Docker du backend sur Docker Hub
+      - name: Push Backend Docker Image
+        run: |
+          docker push notmga/sonarprojet-backend:latest
