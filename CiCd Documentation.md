@@ -28,19 +28,33 @@ Frontend :
 
 Objectif : Installer les dépendances du projet Node.js via npm. Ces dépendances incluent les bibliothèques nécessaires pour le développement et le build du frontend.
 
-1.4 Analyse SonarCloud
+1.4 Tests et Génération de Rapports de Couverture
+
+Backend :
+
+Étape : Run Tests and Generate Coverage Report for Backend
+
+Objectif : Exécuter les tests unitaires pour le backend en utilisant Maven et générer un rapport de couverture via JaCoCo. Ceci permet d'assurer la qualité du code et d'identifier les zones non couvertes par des tests.
+
+Frontend :
+
+Étape : Run Tests and Generate Coverage Report for Frontend
+
+Objectif : Utiliser npm pour exécuter les tests front-end, y compris ceux utilisant Google Chrome Headless, et générer un rapport de couverture de code. Cela permet de vérifier la qualité du code et d'assurer la fiabilité du frontend.
+
+1.5 Analyse SonarCloud
 
 Étape : Run SonarCloud Scan
 
 Objectif : Cette étape lance un scan SonarCloud sur le code source pour évaluer la qualité du code. SonarCloud est une plateforme d'analyse de code qui vérifie les mauvaises pratiques, la dette technique, et d'autres métriques de qualité. Le rapport généré offre des informations précieuses sur les aspects à améliorer.
 
-1.5 Build des Conteneurs Docker
+1.6 Build des Conteneurs Docker
 
 Étape : Build Docker Image
 
 Objectif : Construire des images Docker distinctes pour le frontend et le backend à partir des Dockerfiles fournis. Ces images seront utilisées pour déployer l'application en production.
 
-1.6 Push vers Docker Hub
+1.7 Push vers Docker Hub
 
 Étape : Push Docker Image
 
@@ -66,7 +80,9 @@ Objectif : La complexité cyclomatique moyenne ne doit pas dépasser 10. Si ce s
 
 Après l'exécution initiale de la pipeline CI/CD, les métriques suivantes ont été observées :
 
-Coverage du Code : 78% (objectif non atteint, nécessite des tests supplémentaires pour améliorer la couverture).
+Coverage du Code Backend : 78% (objectif non atteint, nécessite des tests supplémentaires pour améliorer la couverture).
+
+Coverage du Code Frontend : 85% (objectif atteint, mais pourrait être amélioré).
 
 Complexité Cyclomatique Moyenne : 12 (au-dessus du seuil fixé, des efforts de simplification sont nécessaires).
 
@@ -82,7 +98,7 @@ Retours Négatifs : Certains utilisateurs ont souligné des problèmes de perfor
 
 3.3 Problèmes à Résoudre en Priorité
 
-Amélioration de la Couverture de Tests : Actuellement, la couverture est de 78%, ce qui est en dessous de l'objectif de 80%. Des tests supplémentaires doivent être ajoutés pour couvrir les parties critiques du code.
+Amélioration de la Couverture de Tests : Actuellement, la couverture est de 78% pour le backend, ce qui est en dessous de l'objectif de 80%. Des tests supplémentaires doivent être ajoutés pour couvrir les parties critiques du code.
 
 Réduction de la Complexité Cyclomatique : La complexité moyenne étant de 12, il est essentiel de simplifier certaines méthodes du backend pour améliorer la maintenabilité du code.
 
