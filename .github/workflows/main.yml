@@ -1,0 +1,59 @@
+name: Test and report
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    name: Back-end tests and jacoco report
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17 for x64
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+          architecture: x64
+    
+      - name: Build and test with Maven
+        run: mvn clean test
+        working-directory: ./back
+    
+      - name: Upload Jacoco report
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-test-coverage
+          path: ./back/target/site/jacoco/
+
+  front-end:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+
+
+      - name: 'Cache dependencies'
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 'Install dependencies'
+        working-directory: ./front
+        run: npm install
+
+      - name: 'Run tests with coverage'
+        working-directory: ./front
+        run: npm run test -- --code-coverage --no-watch --no-progress --browsers=ChromeHeadless
+
+      - name: 'Upload coverage result with artifacts'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: ./front/coverage
