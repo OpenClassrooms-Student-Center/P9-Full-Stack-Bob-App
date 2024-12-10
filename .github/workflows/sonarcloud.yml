@@ -28,11 +28,11 @@ jobs:
           java-version: "17"
           check-latest: true
 
-      # Vérifier la version de Java - S'assurer que c'est bien Java 17
+      # Vérifier la version de Java
       - name: Verify Java Version
         run: java -version
 
-      # Installer Node.js pour le front-end
+      # Installer Node.js pour le frontend
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -42,15 +42,27 @@ jobs:
       - name: Install Backend Dependencies
         run: |
           cd back
-          ./mvnw clean install
+          ./mvnw clean install -DskipTests
 
-      # Installer les dépendances pour le front-end
+      # Générer le rapport de couverture pour le backend
+      - name: Generate JaCoCo Coverage Report
+        run: |
+          cd back
+          ./mvnw test jacoco:report
+
+      # Installer les dépendances pour le frontend
       - name: Install Frontend Dependencies
         run: |
           cd front
           npm install
 
-      # Lancer l'analyse SonarCloud avec Sonar Scanner
+      # Lancer les tests pour le frontend et générer le rapport de couverture
+      - name: Run Frontend Tests with Coverage
+        run: |
+          cd front
+          npm run test -- --coverage
+
+      # Lancer l'analyse SonarCloud
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -60,4 +72,7 @@ jobs:
             -Dsonar.organization=notmga
             -Dsonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.sources=.
+            -Dsonar.java.binaries=back/target
+            -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
