@@ -44,6 +44,8 @@ jobs:
         with:
           name: jacoco-report
           path: back/target/site/jacoco
+      - name: List Files in Jacoco Directory
+        run: ls -al back/target/site/jacoco
 
   build-frontend:
     name: Build and Test Frontend with Coverage
