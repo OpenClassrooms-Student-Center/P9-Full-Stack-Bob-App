@@ -1,5 +1,9 @@
 name: SonarCloud Code Analysis
 
+permissions:
+  contents: read
+  actions: write
+
 on:
   workflow_run:
     workflows:
@@ -30,6 +34,10 @@ jobs:
       # Vérifier la version de Java
       - name: Verify Java Version
         run: java -version
+
+      # Lister les artefacts disponibles
+      - name: List Available Artifacts
+        run: ls -al ${{ github.workspace }}
 
       # Télécharger les artifacts de couverture pour le backend
       - name: Download Backend Coverage Artifact
