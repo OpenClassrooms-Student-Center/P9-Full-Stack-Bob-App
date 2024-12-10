@@ -1,0 +1,7 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+bobapp,com.openclassrooms.bobapp.model,Joke,32,0,0,0,13,0,7,0,7,0
+bobapp,com.openclassrooms.bobapp.service,JokeService,18,6,0,0,4,3,1,1,1,1
+bobapp,com.openclassrooms.bobapp.data,JsonReader.SingletonHolder,5,0,0,0,1,0,1,0,1,0
+bobapp,com.openclassrooms.bobapp.data,JsonReader,25,29,2,2,7,10,4,2,2,2
+bobapp,com.openclassrooms.bobapp,BobappApplication,5,3,0,0,2,1,1,1,1,1
+bobapp,com.openclassrooms.bobapp.controller,JokeController,5,6,0,0,1,3,1,1,1,1

@@ -1,0 +1,6 @@
+com\openclassrooms\bobapp\data\JsonReader$SingletonHolder.class
+com\openclassrooms\bobapp\model\Joke.class
+com\openclassrooms\bobapp\data\JsonReader.class
+com\openclassrooms\bobapp\BobappApplication.class
+com\openclassrooms\bobapp\service\JokeService.class
+com\openclassrooms\bobapp\controller\JokeController.class
