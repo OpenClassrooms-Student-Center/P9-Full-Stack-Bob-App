@@ -111,11 +111,8 @@ jobs:
           name: frontend-coverage-report
           path: front/coverage
 
-      - name: Debug Backend Coverage Artifact
-        run: ls -al back/target/site/jacoco
-
-      - name: Verify LCOV Coverage Report
-        run: ls -al front/coverage/lcov.info
+      - name: Verify Frontend Coverage Report
+        run: ls -al front/coverage
 
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
