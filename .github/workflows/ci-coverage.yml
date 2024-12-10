@@ -7,7 +7,9 @@ on:
   pull_request:
     branches:
       - main
-
+permissions:
+  contents: read
+  actions: write
 jobs:
   build-backend:
     name: Build and Test Backend with Coverage
@@ -46,7 +48,10 @@ jobs:
           name: jacoco-report
           path: back/target/site/jacoco
 
+      # Lister les artefacts uploadés
       - name: List Uploaded Artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh run view --json artifacts --log
 
   build-frontend:
