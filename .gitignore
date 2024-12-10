@@ -3,6 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 !/back/target/site/jacoco/*
+!back/target/site/jacoco/jacoco.xml
+!front/coverage/lcov.info
 node_modules/
 dist/
 coverage/
