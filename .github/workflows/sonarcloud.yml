@@ -33,6 +33,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: jacoco-report
+          path: back/target/site/jacoco
 
       - name: Download Frontend Coverage Artifact
         uses: actions/download-artifact@v4
