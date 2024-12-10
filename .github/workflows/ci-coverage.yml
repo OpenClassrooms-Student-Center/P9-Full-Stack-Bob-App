@@ -1,4 +1,4 @@
-name: CI and Coverage Report
+name: CI, Coverage, and SonarCloud Analysis
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   build-backend:
@@ -44,10 +45,6 @@ jobs:
         with:
           name: jacoco-report
           path: back/target/site/jacoco/jacoco.xml
-      - name: List Available Artifacts
-        run: |
-          curl -sH "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
 
   build-frontend:
     name: Build and Test Frontend with Coverage
@@ -88,9 +85,12 @@ jobs:
   sonarqube:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
+    needs:
+      - build-backend
+      - build-frontend
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -98,23 +98,18 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
-      - name: Wait for Artifact Availability
-        run: sleep 30
-      - name: List Available Artifacts
-        run: |
-          curl -sH "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
 
       - name: Download Backend Coverage Artifact
-        run: |
-          curl -L -o jacoco-report.zip -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-          https://api.github.com/repos/${{ github.repository }}/actions/artifacts/2301217797/zip
-          unzip jacoco-report.zip -d back/target/site/jacoco
+        uses: actions/download-artifact@v4
+        with:
+          name: jacoco-report
+          path: back/target/site/jacoco
 
       - name: Download Frontend Coverage Artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage-report
+          path: front/coverage
 
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -126,6 +121,6 @@ jobs:
             -Dsonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.sources=.
             -Dsonar.java.binaries=back/target
-            -Dsonar.jacoco.reportPaths=jacoco-report/jacoco.xml
-            -Dsonar.javascript.lcov.reportPaths=frontend-coverage-report/lcov.info
+            -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
