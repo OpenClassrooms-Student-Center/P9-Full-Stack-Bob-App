@@ -3,7 +3,7 @@ name: SonarCloud Code Analysis
 on:
   workflow_run:
     workflows:
-      - "Build and Test Backend with Coverage" # Nom du workflow qui génère les rapports de couverture
+      - "CI and Coverage Report" # Nom du workflow qui génère les rapports de couverture
     types:
       - completed
 
