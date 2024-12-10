@@ -37,7 +37,7 @@ jobs:
 
       # Lister les artefacts disponibles
       - name: List Available Artifacts
-        run: ls -al ${{ github.workspace }}
+        run: gh run view --json artifacts --log
 
       # Télécharger les artifacts de couverture pour le backend
       - name: Download Backend Coverage Artifact
