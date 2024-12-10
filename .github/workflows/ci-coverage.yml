@@ -122,9 +122,8 @@ jobs:
           args: >
             -Dsonar.organization=notmga
             -Dsonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
-            -Dsonar.sources=.
+            -Dsonar.sources=back/src/main/java,front/src
             -Dsonar.java.binaries=back/target
             -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
-             -X
