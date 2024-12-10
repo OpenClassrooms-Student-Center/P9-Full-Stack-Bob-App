@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage-report
-          path: front/coverage/lcov.info
+          path: front/coverage/bobapp/lcov.info
 
       - name: List Coverage Directory
         run: ls -al front/coverage/bobapp
