@@ -44,8 +44,10 @@ jobs:
         with:
           name: jacoco-report
           path: back/target/site/jacoco/jacoco.xml
-      - name: List Files in Jacoco Directory
-        run: ls -al back/target/site/jacoco
+      - name: List Available Artifacts
+        run: |
+          curl -sH "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
 
   build-frontend:
     name: Build and Test Frontend with Coverage
