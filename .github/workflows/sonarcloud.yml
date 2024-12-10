@@ -1,12 +1,11 @@
 name: SonarCloud Code Analysis
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows:
+      - "CI and Coverage Report" # Nom du workflow qui génère les rapports de couverture
+    types:
+      - completed
 
 jobs:
   sonarqube:
@@ -32,35 +31,17 @@ jobs:
       - name: Verify Java Version
         run: java -version
 
-      # Installer Node.js pour le frontend
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      # Télécharger les artifacts de couverture pour le backend
+      - name: Download Backend Coverage Artifact
+        uses: actions/download-artifact@v3
         with:
-          node-version: "16"
+          name: jacoco-report
 
-      # Installer les dépendances pour le backend
-      - name: Install Backend Dependencies
-        run: |
-          cd back
-          ./mvnw clean install -DskipTests
-
-      # Générer le rapport de couverture pour le backend
-      - name: Generate JaCoCo Coverage Report
-        run: |
-          cd back
-          ./mvnw test jacoco:report
-
-      # Installer les dépendances pour le frontend
-      - name: Install Frontend Dependencies
-        run: |
-          cd front
-          npm install
-
-      # Lancer les tests pour le frontend et générer le rapport de couverture
-      - name: Run Frontend Tests with Coverage
-        run: |
-          cd front
-          npm ng test --no-watch --code-coverage
+      # Télécharger les artifacts de couverture pour le frontend
+      - name: Download Frontend Coverage Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-coverage-report
 
       # Lancer l'analyse SonarCloud
       - name: Run SonarCloud Scan
@@ -73,6 +54,6 @@ jobs:
             -Dsonar.projectKey=NotMGA_Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD
             -Dsonar.sources=.
             -Dsonar.java.binaries=back/target
-            -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.jacoco.reportPaths=jacoco-report/jacoco.xml
+            -Dsonar.javascript.lcov.reportPaths=frontend-coverage-report/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
