@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
-          path: back/coverage
+          path: back/target/site/jacoco
 
   build-frontend:
     name: Build and Test Frontend with Coverage
