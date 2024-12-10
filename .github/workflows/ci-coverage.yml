@@ -7,9 +7,10 @@ on:
   pull_request:
     branches:
       - main
+
 permissions:
-  contents: read
-  actions: write
+  contents: write
+
 jobs:
   build-backend:
     name: Build and Test Backend with Coverage
@@ -25,34 +26,24 @@ jobs:
           distribution: "adopt"
           java-version: "11"
 
-      # Rendre le fichier mvnw exécutable
       - name: Make Maven Wrapper Executable
         working-directory: back
         run: chmod +x mvnw
 
-      # Installer les dépendances pour le back-end (en ignorant les tests au début)
       - name: Install Dependencies for Backend
         working-directory: back
         run: ./mvnw clean install -DskipTests=true
 
-      # Lancer les tests et générer les rapports de couverture pour le back-end
       - name: Run Tests and Generate Coverage Report for Backend
         working-directory: back
         run: ./mvnw test
 
-      # Archiver le rapport de JaCoCo pour le back-end
       - name: Archive JaCoCo Coverage Report for Backend
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: back/target/site/jacoco
-
-      # Lister les artefacts uploadés
-      - name: List Uploaded Artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh run view --json artifacts --log
 
   build-frontend:
     name: Build and Test Frontend with Coverage
@@ -68,7 +59,6 @@ jobs:
         with:
           node-version: "16"
 
-      # Installer Google Chrome pour exécuter ChromeHeadless
       - name: Install Google Chrome
         run: |
           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -76,17 +66,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install google-chrome-stable
 
-      # Installer les dépendances pour le front-end
       - name: Install Dependencies for Frontend
         working-directory: front
         run: npm install
 
-      # Lancer les tests et générer les rapports de couverture pour le front-end
       - name: Run Tests and Generate Coverage Report for Frontend
         working-directory: front
         run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
 
-      # Archiver le rapport de couverture pour le front-end
       - name: Archive Coverage Report for Frontend
         if: success()
         uses: actions/upload-artifact@v4
