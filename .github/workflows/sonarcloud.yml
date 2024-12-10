@@ -60,7 +60,7 @@ jobs:
       - name: Run Frontend Tests with Coverage
         run: |
           cd front
-          npm run test -- --coverage
+          npm ng test --no-watch --code-coverage
 
       # Lancer l'analyse SonarCloud
       - name: Run SonarCloud Scan
