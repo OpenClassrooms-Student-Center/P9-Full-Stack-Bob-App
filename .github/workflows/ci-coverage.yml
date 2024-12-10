@@ -46,6 +46,9 @@ jobs:
           name: jacoco-report
           path: back/target/site/jacoco
 
+      - name: List Uploaded Artifacts
+        run: gh run view --json artifacts --log
+
   build-frontend:
     name: Build and Test Frontend with Coverage
     runs-on: ubuntu-latest
