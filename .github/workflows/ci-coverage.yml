@@ -127,3 +127,4 @@ jobs:
             -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
+             -X
