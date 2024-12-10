@@ -82,6 +82,9 @@ jobs:
           name: frontend-coverage-report
           path: front/coverage/lcov.info
 
+      - name: List Coverage Directory
+        run: ls -al front/coverage/bobapp
+
   sonarqube:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
