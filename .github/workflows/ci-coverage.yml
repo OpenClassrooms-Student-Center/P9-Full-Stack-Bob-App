@@ -117,6 +117,9 @@ jobs:
       - name: Verify JaCoCo Coverage Report
         run: ls -al back/target/site/jacoco/jacoco.xml
 
+      - name: Debug JaCoCo Report
+        run: cat back/target/site/jacoco/jacoco.xml
+
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
