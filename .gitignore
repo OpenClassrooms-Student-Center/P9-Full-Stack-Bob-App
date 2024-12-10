@@ -1,4 +1,5 @@
 HELP.md
+target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 !/back/target/site/jacoco/*
