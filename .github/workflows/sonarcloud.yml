@@ -25,10 +25,13 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+      - name: Wait for Artifact Availability
+        run: sleep 30
       - name: List Available Artifacts
         run: |
           curl -sH "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
           https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
+
       - name: Download Backend Coverage Artifact
         uses: actions/download-artifact@v4
         with:
