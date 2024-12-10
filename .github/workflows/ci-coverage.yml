@@ -112,10 +112,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage-report
-          path: front/coverage
+          path: front/coverage/bobapp
 
       - name: Verify Frontend Coverage Report
-        run: ls -al front/coverage
+        run: ls -al front/coverage/bobapp
 
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -129,5 +129,5 @@ jobs:
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.java.binaries=back/target
             -Dsonar.jacoco.reportPaths=back/target/site/jacoco/jacoco.xml
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/bobapp/lcov.info
             -Dsonar.host.url=https://sonarcloud.io
