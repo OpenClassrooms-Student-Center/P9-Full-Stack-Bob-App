@@ -111,6 +111,9 @@ jobs:
           name: frontend-coverage-report
           path: front/coverage
 
+      - name: Debug Backend Coverage Artifact
+        run: ls -al back/target/site/jacoco
+
       - name: Run SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
