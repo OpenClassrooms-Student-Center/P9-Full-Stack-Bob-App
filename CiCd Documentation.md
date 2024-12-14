@@ -142,4 +142,4 @@ solution :Correction des bug trop lents . Faire un document pour pouvoir traquer
 “Ça fait une semaine que je ne reçois plus rien, j’ai envoyé un email il y a 5 jours mais toujours pas de nouvelles..”
 solution: Réactivité trop lente du support , mettre en place des réponses automatiques pour certaines demandes peut réduire ce problème .
 “J’ai supprimé ce site de mes favoris ce matin, dommage, vraiment dommage.”
-solution : Perte d' utilisateur a cause des problème vu ci dessus . Amélioration plus rapide et continue des bug peut réduire la perte d utilisateur
+solutions : Perte d' utilisateur a cause des problème vu ci dessus . Amélioration plus rapide et continue des bug peut réduire la perte d utilisateur
