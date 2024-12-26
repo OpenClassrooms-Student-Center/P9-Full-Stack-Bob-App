@@ -1,0 +1,122 @@
+# Workflow Tests
+name: Tests Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run Backend Tests with Coverage
+        run: |
+          cd back
+          mvn test
+
+      - name: Generate JaCoCo Coverage Report
+        run: |
+          cd back
+          mvn jacoco:report
+
+      - name: Set REPORT_NAME variable
+        id: set_report_name
+        run: echo "REPORT_NAME=tests_backend_jacoco_report_$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
+
+      - name: Create JaCoCo Coverage Report Archive
+        run: |
+          # Naviguer vers le répertoire du backend
+          cd back/target/site/jacoco
+          
+          # Créer un répertoire avec le nom unique
+          mkdir -p "../$REPORT_NAME"
+          
+          # Déplacer tous les fichiers nécessaires dans le répertoire
+          mv ./* "../$REPORT_NAME/"
+          
+          # Revenir au niveau supérieur
+          cd ..
+        shell: bash
+
+      - name: Upload JaCoCo Coverage Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REPORT_NAME }}
+          path: back/target/site/${{ env.REPORT_NAME }}
+
+  frontend_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'latest'
+
+      - name: Install dependencies for Frontend
+        run: |
+          cd front
+          npm install
+
+      - name: Run Frontend Tests with Coverage
+        run: |
+          cd front
+          npm run test:ci -- --watch=false --code-coverage
+
+      - name: Verify Frontend Coverage Report
+        run: |
+          cd front
+          ls -la coverage/bobapp/lcov.info
+
+      - name: Upload Coverage Report and LCOV Info
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-coverage
+          path: |
+            front/coverage/bobapp/lcov.info
+            front/coverage/bobapp/lcov-report
+          if-no-files-found: warn
+
+      - name: Upload Frontend Test Report
+        run: |
+          # Définir le nom dynamique basé sur la date et l'heure
+          REPORT_NAME="tests_frontend_jasmine_report_$(date +'%Y%m%d_%H%M%S')"
+          
+          # Renommer le dossier pour correspondre au nom de l'artefact
+          mv front/coverage/bobapp "$REPORT_NAME"
+
+          # Sauvegarder le nom de l'artefact dans une variable d'environnement pour l'étape suivante
+          echo "REPORT_NAME=$REPORT_NAME" >> $GITHUB_ENV
+        shell: bash
+      
+      - name: Verify Artifact Directory
+        run: ls -la ${{ env.REPORT_NAME }}
+      
+      - name: Upload Frontend Test Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REPORT_NAME }}
+          path: ${{ env.REPORT_NAME }}

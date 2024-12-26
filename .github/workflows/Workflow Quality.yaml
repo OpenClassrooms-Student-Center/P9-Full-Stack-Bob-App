@@ -1,0 +1,126 @@
+# Workflow Qualité
+name: Quality Analysis
+
+on:
+  workflow_run:
+    workflows:
+      - Tests Pipeline
+    types:
+      - completed
+
+permissions:
+  contents: read  # Permet la lecture des fichiers du dépôt
+  actions: read   # Permet de lire les artefacts publiés par d'autres workflows
+  id-token: write # Si nécessaire pour des actions spécifiques (comme l'utilisation de SonarQube dans un cloud privé)
+
+jobs:
+  quality_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Pour une analyse complète
+
+      - name: Build Backend
+        run: |
+          cd back
+          mvn clean compile
+
+      - name: Verify Compiled Classes
+        run: ls -la back/target/classes
+
+      - name: Download Artifact from CI/CD
+        run: |
+          mkdir -p front/coverage/bobapp  # Crée le répertoire si nécessaire
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/RykesZ/Gerez-un-projet-collaboratif-en-int-grant-une-demarche-CI-CD/actions/artifacts \
+              | jq -r '.artifacts[] | select(.name=="frontend-coverage") | .archive_download_url' \
+              | xargs -I {} curl -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -o frontend-coverage.zip {}
+          unzip frontend-coverage.zip -d front/coverage/bobapp
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'zulu'
+
+      - name: Start SonarQube server
+        run: |
+          docker run -d --name sonarqube \
+            -p 9000:9000 \
+            -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+            sonarqube:9.9-community
+
+      - name: Wait for SonarQube to be ready
+        run: |
+          for i in {1..30}; do
+            curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"' && break || sleep 5
+          done
+
+      - name: Generate Admin Token for SonarQube
+        id: generate-token
+        run: |
+          export SONAR_TOKEN=$(curl -X POST -u admin:admin -d "name=AdminToken" "http://localhost:9000/api/user_tokens/generate" | jq -r '.token')
+          echo "SONAR_TOKEN=$SONAR_TOKEN" >> $GITHUB_ENV
+        env:
+          SONAR_TOKEN: $SONAR_TOKEN
+
+      - name: Analyze Backend with SonarQube
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://localhost:9000
+        run: |
+          cd back
+          mvn -X verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=BobApp-backend \
+            -Dsonar.projectName='BobApp Backend' \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.sources=src/main/java \
+            -Dsonar.java.binaries=target/classes \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+      - name: Analyze Frontend with SonarQube
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://localhost:9000
+        run: |
+          cd front
+          npx sonar-scanner \
+            -Dsonar.projectKey=BobApp-frontend \
+            -Dsonar.projectName='BobApp Frontend' \
+            -Dsonar.sources=src \
+            -Dsonar.tests=src \
+            -Dsonar.test.inclusions="**/*.spec.ts" \
+            -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info \
+            -Dsonar.language=TypeScript \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=$SONAR_TOKEN
+
+      - name: Generate CSV from SonarQube Metrics
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        run: |
+          ALL_METRICS=$(curl -u $SONAR_TOKEN: "http://localhost:9000/api/metrics/search?ps=500" | jq -r '.metrics[].key' | paste -sd "," -)
+          mkdir -p back/target/sonar-reports
+          curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-backend&metricKeys=$ALL_METRICS" -o back/target/sonar-reports/backend-metrics.json
+          echo "Metric,Value" > back/target/sonar-reports/backend-metrics.csv
+          jq -r '.component.measures[] | [.metric, .value] | @csv' back/target/sonar-reports/backend-metrics.json >> back/target/sonar-reports/backend-metrics.csv
+          mkdir -p front/sonar-reports
+          curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-frontend&metricKeys=$ALL_METRICS" -o front/sonar-reports/frontend-metrics.json
+          echo "Metric,Value" > front/sonar-reports/frontend-metrics.csv
+          jq -r '.component.measures[] | [.metric, .value] | @csv' front/sonar-reports/frontend-metrics.json >> front/sonar-reports/frontend-metrics.csv
+          echo "Project,Metric,Value" > combined-metrics.csv
+          awk -F',' 'NR>1 {print "Backend,"$0}' back/target/sonar-reports/backend-metrics.csv >> combined-metrics.csv
+          awk -F',' 'NR>1 {print "Frontend,"$0}' front/sonar-reports/frontend-metrics.csv >> combined-metrics.csv
+
+      - name: Upload SonarQube Reports as Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sonar-reports
+          path: |
+            back/target/sonar-reports/backend-metrics.csv
+            front/sonar-reports/frontend-metrics.csv
+            combined-metrics.csv

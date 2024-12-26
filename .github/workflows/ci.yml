@@ -1,0 +1,425 @@
+#name: CI/CD Pipeline
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#  pull_request:
+#    branches:
+#      - main
+#
+#jobs:
+#  # Job pour tester et build le backend
+#  backend:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up JDK 11
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '11'
+#          distribution: 'adopt'
+#
+#      - name: Cache Maven dependencies
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.m2/repository
+#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-maven-
+#
+#      - name: Build Backend
+#        run: |
+#          cd back
+#          mvn clean compile
+#
+#      - name: Verify Compilation Output
+#        run: ls -la back/target/classes
+#
+#      - name: Verify Compiled Java Classes
+#        run: |
+#          find back/target/classes -type f
+#          
+#      - name: Run Backend Tests with Coverage
+#        run: |
+#          cd back
+#          mvn test
+#
+#      - name: Generate JaCoCo Coverage Report
+#        run: |
+#          cd back
+#          mvn jacoco:report
+#
+#      - name: Set REPORT_NAME variable
+#        id: set_report_name
+#        run: echo "REPORT_NAME=tests_backend_jacoco_report_$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
+#
+#      - name: Create JaCoCo Coverage Report Archive
+#        run: |
+#          # Naviguer vers le répertoire du backend
+#          cd back/target/site/jacoco
+#          
+#          # Créer un répertoire avec le nom unique
+#          mkdir -p "../$REPORT_NAME"
+#          
+#          # Déplacer tous les fichiers nécessaires dans le répertoire
+#          mv ./* "../$REPORT_NAME/"
+#          
+#          # Revenir au niveau supérieur
+#          cd ..
+#        shell: bash
+#
+#      - name: Upload JaCoCo Coverage Report as Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ env.REPORT_NAME }}
+#          path: back/target/site/${{ env.REPORT_NAME }}
+#
+#      - name: Build Docker image for Backend
+#        run: |
+#          cd back
+#          docker build -t bobapp-back:latest .
+#
+#      - name: Save Backend Docker image as artifact
+#        run: docker save bobapp-back:latest | gzip > bobapp-back.tar.gz
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: bobapp-back
+#          path: bobapp-back.tar.gz
+#
+#      - name: Upload Compiled Java Classes
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: compiled-classes
+#          path: back/target/classes
+#
+#  # Job pour tester et build le frontend
+#  frontend:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
+#
+#      - name: Install dependencies for ChromeHeadless
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y libnss3 libatk1.0-0 libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxrandr2 libxss1 libxtst6 fonts-liberation libappindicator3-1 libasound2 libgbm1
+#
+#      - name: Set up Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 'latest'
+#
+#      - name: Install dependencies for Frontend
+#        run: |
+#          cd front
+#          npm install
+#
+#      - name: Run Frontend Tests with Coverage
+#        run: |
+#          cd front
+#          npm run test:ci -- --watch=false --code-coverage
+#
+#      - name: Verify Frontend Coverage Report
+#        run: |
+#          cd front
+#          ls -la coverage/bobapp/lcov.info
+#      
+#      - name: Debug LCOV Content
+#        run: |
+#          cd front
+#          cat coverage/bobapp/lcov.info
+#
+#      - name: Upload Coverage Report and LCOV Info
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: frontend-coverage
+#          path: |
+#            front/coverage/bobapp/lcov.info
+#            front/coverage/bobapp/lcov-report
+#          if-no-files-found: warn
+#
+#      - name: Upload Frontend Test Report
+#        run: |
+#          # Définir le nom dynamique basé sur la date et l'heure
+#          REPORT_NAME="tests_frontend_jasmine_report_$(date +'%Y%m%d_%H%M%S')"
+#          
+#          # Renommer le dossier pour correspondre au nom de l'artefact
+#          mv front/coverage/bobapp "$REPORT_NAME"
+#
+#          # Sauvegarder le nom de l'artefact dans une variable d'environnement pour l'étape suivante
+#          echo "REPORT_NAME=$REPORT_NAME" >> $GITHUB_ENV
+#        shell: bash
+#
+#      - name: Verify Artifact Directory
+#        run: ls -la ${{ env.REPORT_NAME }}
+#      
+#      - name: Upload Frontend Test Report Artifact
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: ${{ env.REPORT_NAME }}
+#          path: ${{ env.REPORT_NAME }}
+#
+#      - name: Build Frontend
+#        run: |
+#          cd front
+#          npm run build
+#
+#      - name: Build Docker image for Frontend
+#        run: |
+#          cd front
+#          docker build -t bobapp-front:latest .
+#
+#      - name: Save Frontend Docker image as artifact
+#        run: docker save bobapp-front:latest | gzip > bobapp-front.tar.gz
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: bobapp-front
+#          path: bobapp-front.tar.gz
+#
+#  # Job pour analyser la qualité du code avec SonarQube
+#  quality_analysis:
+#    runs-on: ubuntu-latest
+#    needs: [backend, frontend]
+#    steps:
+#    # Étape 1 : Récupérer le code source
+#    - name: Checkout code
+#      uses: actions/checkout@v4
+#      with:
+#        fetch-depth: 0  # Pour une analyse complète
+#
+#    - name: Download Compiled Java Classes
+#      uses: actions/download-artifact@v3
+#      with:
+#        name: compiled-classes
+#        path: back/target/classes
+#
+#    - name: Verify Compiled Classes
+#      run: ls -la back/target/classes
+#
+#    - name: Download Frontend Coverage Artifacts
+#      uses: actions/download-artifact@v3
+#      with:
+#        name: frontend-coverage
+#        path: front/coverage/bobapp
+#
+#    # Étape 2 : Configurer JDK 11
+#    - name: Set up JDK 11
+#      uses: actions/setup-java@v4
+#      with:
+#        java-version: 11
+#        distribution: 'zulu'
+#
+#    # Étape 3 : Démarrer un serveur SonarQube local
+#    - name: Start SonarQube server
+#      run: |
+#        docker run -d --name sonarqube \
+#          -p 9000:9000 \
+#          -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+#          sonarqube:9.9-community
+#          
+#    # Attendre que le serveur SonarQube soit prêt
+#    - name: Wait for SonarQube to be ready
+#      run: |
+#        for i in {1..30}; do
+#          curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"' && break || sleep 5
+#        done
+#
+#    # Étape 3.1 : Créer un token Admin SonarQube
+#    - name: Generate Admin Token for SonarQube
+#      id: generate-token
+#      run: |
+#        export SONAR_TOKEN=$(curl -X POST -u admin:admin -d "name=AdminToken" "http://localhost:9000/api/user_tokens/generate" | jq -r '.token')
+#        echo "SONAR_TOKEN=$SONAR_TOKEN" >> $GITHUB_ENV
+#      env:
+#        SONAR_TOKEN: $SONAR_TOKEN
+#
+#    # Debugger le token et vérifier le statut du serveur
+#    - name: Debug SonarQube Setup
+#      run: |
+#        echo "SONAR_TOKEN=$SONAR_TOKEN"
+#        curl -u $SONAR_TOKEN: http://localhost:9000/api/system/status
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#
+#    # Étape 3.2 : Utiliser le token Admin pour des configurations supplémentaires si nécessaire
+#    - name: Configure SonarQube with Admin Token
+#      run: |
+#        curl -u $SONAR_TOKEN: \
+#          -X POST "http://localhost:9000/api/settings/set" \
+#          -d "key=sonar.some.configuration&value=some-value"
+#
+#    # Étape 4 : Mise en cache des packages SonarQube
+#    - name: Cache SonarQube packages
+#      uses: actions/cache@v4
+#      with:
+#        path: ~/.sonar/cache
+#        key: ${{ runner.os }}-sonar
+#        restore-keys: ${{ runner.os }}-sonar
+#
+#    # Étape 5 : Mise en cache des dépendances Maven
+#    - name: Cache Maven packages
+#      uses: actions/cache@v4
+#      with:
+#        path: ~/.m2
+#        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+#        restore-keys: ${{ runner.os }}-m2
+#
+#    - name: List SonarQube Projects
+#      run: |
+#        curl -u ${{ env.SONAR_TOKEN }}: http://localhost:9000/api/components/search | jq
+#
+#    - name: List Available Metrics
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/metrics/search" | jq
+#
+#    - name: Debug SonarQube Backend Measures
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        curl -u $SONAR_TOKEN: http://localhost:9000/api/measures/component?component_tree=BobApp-backend&metricKeys=ncloc,coverage,bugs,vulnerabilities | jq
+#
+#    # Étape 6 : Analyse du backend avec SonarQube
+#    - name: Analyze Backend with SonarQube
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#        SONAR_HOST_URL: http://localhost:9000
+#      run: |
+#        cd back
+#        mvn -X verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+#          -Dsonar.projectKey=BobApp-backend \
+#          -Dsonar.projectName='BobApp Backend' \
+#          -Dsonar.host.url=http://localhost:9000 \
+#          -Dsonar.login=$SONAR_TOKEN \
+#          -Dsonar.sources=src/main/java \
+#          -Dsonar.java.binaries=target/classes \
+#          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+#
+#    - name: Check Metrics for Backend
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-backend&metricKeys=ncloc,coverage,bugs,vulnerabilities" | jq
+#
+#
+#    # Étape 7 : Générer les rapports CSV pour le backend
+#    - name: Save Backend JSON Metrics
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        mkdir -p back/target/sonar-reports
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component_tree?component=BobApp-backend&metricKeys=ncloc,coverage,bugs,vulnerabilities" -o back/target/sonar-reports/backend-report.json
+#
+#    # Étape 8 : Analyse du frontend avec SonarQube
+#    - name: Analyze Frontend with SonarQube
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#        SONAR_HOST_URL: http://localhost:9000
+#      run: |
+#        cd front
+#        npx sonar-scanner \
+#          -Dsonar.projectKey=BobApp-frontend \
+#          -Dsonar.projectName='BobApp Frontend' \
+#          -Dsonar.sources=src \
+#          -Dsonar.tests=src \
+#          -Dsonar.test.inclusions="**/*.spec.ts" \
+#          -Dsonar.typescript.lcov.reportPaths=coverage/bobapp/lcov.info \
+#          -Dsonar.language=TypeScript \
+#          -Dsonar.host.url=http://localhost:9000 \
+#          -Dsonar.login=$SONAR_TOKEN
+#
+#    - name: Check Metrics for Frontend
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-frontend&metricKeys=ncloc,coverage,bugs,vulnerabilities" | jq
+#        
+#    # Étape 10 : Debugger et afficher les informations sur les projets analysés
+#    - name: Debug Analysis Logs
+#      run: |
+#        echo "=== BACKEND ANALYSIS ==="
+#        curl -u $SONAR_TOKEN: http://localhost:9000/api/components/show?component=BobApp-backend | jq
+#        curl -u $SONAR_TOKEN: http://localhost:9000/api/measures/component?component=BobApp-backend&metricKeys=ncloc,coverage,bugs,vulnerabilities | jq
+#        echo "=== FRONTEND ANALYSIS ==="
+#        curl -u $SONAR_TOKEN: http://localhost:9000/api/components/show?component=BobApp-frontend | jq
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#
+#    - name: Generate CSV from SonarQube Metrics
+#      env:
+#        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+#      run: |
+#        # Récupérer toutes les métriques disponibles
+#        ALL_METRICS=$(curl -u $SONAR_TOKEN: "http://localhost:9000/api/metrics/search?ps=500" | jq -r '.metrics[].key' | paste -sd "," -)
+#    
+#        # Backend Metrics
+#        mkdir -p back/target/sonar-reports
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-backend&metricKeys=$ALL_METRICS" -o back/target/sonar-reports/backend-metrics.json
+#        echo "Metric,Value" > back/target/sonar-reports/backend-metrics.csv
+#        jq -r '.component.measures[] | [.metric, .value] | @csv' back/target/sonar-reports/backend-metrics.json >> back/target/sonar-reports/backend-metrics.csv
+#    
+#        # Frontend Metrics
+#        mkdir -p front/sonar-reports
+#        curl -u $SONAR_TOKEN: "http://localhost:9000/api/measures/component?component=BobApp-frontend&metricKeys=$ALL_METRICS" -o front/sonar-reports/frontend-metrics.json
+#        echo "Metric,Value" > front/sonar-reports/frontend-metrics.csv
+#        jq -r '.component.measures[] | [.metric, .value] | @csv' front/sonar-reports/frontend-metrics.json >> front/sonar-reports/frontend-metrics.csv
+#    
+#        # Combine Backend and Frontend Metrics
+#        echo "Project,Metric,Value" > combined-metrics.csv
+#        awk -F',' 'NR>1 {print "Backend,"$0}' back/target/sonar-reports/backend-metrics.csv >> combined-metrics.csv
+#        awk -F',' 'NR>1 {print "Frontend,"$0}' front/sonar-reports/frontend-metrics.csv >> combined-metrics.csv
+#
+#    # Étape 11 : Archiver les rapports HTML comme artefacts
+#    - name: Upload SonarQube Reports as Artifacts
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: sonar-reports
+#        path: |
+#          back/target/sonar-reports/backend-report.csv
+#          front/sonar-reports/frontend-report.csv
+#          combined-metrics.csv
+#
+#  # Job pour déployer sur Docker Hub
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: [backend, frontend]
+#    steps:
+#      # Étape 1 : Télécharger et charger l'image Docker du backend
+#      - name: Download Backend Docker image artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: bobapp-back
+#      - name: Load Backend Docker image
+#        run: gunzip -c bobapp-back.tar.gz | docker load
+#
+#      # Étape 2 : Télécharger et charger l'image Docker du frontend
+#      - name: Download Frontend Docker image artifact
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: bobapp-front
+#      - name: Load Frontend Docker image
+#        run: gunzip -c bobapp-front.tar.gz | docker load
+#  
+#      # Étape 3 : Se connecter à Docker Hub
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#  
+#      # Étape 4 : Taguer et pousser l'image Docker du backend
+#      - name: Tag and Push Backend Docker image
+#        run: |
+#          docker tag bobapp-back:latest ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
+#          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
+#  
+#      # Étape 5 : Taguer et pousser l'image Docker du frontend
+#      - name: Tag and Push Frontend Docker image
+#        run: |
+#          docker tag bobapp-front:latest ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
+#          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
+#
