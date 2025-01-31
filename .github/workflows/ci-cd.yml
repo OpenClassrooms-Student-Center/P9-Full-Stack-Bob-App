@@ -31,7 +31,7 @@ jobs:
         run: |
           cd front
           npm install
-          npm test
+          npm run test -- --browsers=ChromeHeadless --no-watch --no-progress
 
   build-and-push:
     name: Build & Push Docker Images
