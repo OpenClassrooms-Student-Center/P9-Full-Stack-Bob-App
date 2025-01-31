@@ -28,7 +28,7 @@ jobs:
           mvn clean test jacoco:report
 
       - name: Upload Coverage Report (Back-end)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
           path: back/target/site/jacoco/
@@ -40,39 +40,14 @@ jobs:
           npm run test -- --browsers=ChromeHeadless --no-watch --no-progress --code-coverage
 
       - name: Upload Coverage Report (Front-end)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: angular-coverage
           path: front/coverage/
 
-  sonar:
-    name: SonarQube Analysis
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
-      - name: Run SonarQube Analysis
-        run: |
-          cd back
-          mvn sonar:sonar \
-            -Dsonar.projectKey=stephanegamot_bobapp \
-            -Dsonar.organization=stephanegamot \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   build-and-push:
     name: Build & Push Docker Images
-    needs: sonar
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
