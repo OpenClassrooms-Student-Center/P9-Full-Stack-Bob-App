@@ -59,6 +59,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17' 
 
+      - name: Compile Project (to generate class files)
+        run: |
+          cd back
+          mvn clean compile
+
       - name: Run SonarQube Analysis
         run: |
           cd back
@@ -66,7 +71,8 @@ jobs:
             -Dsonar.projectKey=White-Wolf-Web_BobApp \
             -Dsonar.organization=white-wolf-web \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.java.binaries=target/classes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
