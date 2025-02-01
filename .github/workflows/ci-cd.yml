@@ -63,8 +63,8 @@ jobs:
         run: |
           cd back
           mvn sonar:sonar \
-            -Dsonar.projectKey=stephanegamot_bobapp \
-            -Dsonar.organization=stephanegamot \
+            -Dsonar.projectKey=White-Wolf-Web_BobApp \ 
+            -Dsonar.organization=White-Wolf-Web \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
         env:
