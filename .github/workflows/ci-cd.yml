@@ -80,7 +80,7 @@ jobs:
         run: |
           cd front
           npx sonar-scanner \
-            -Dsonar.projectKey=White-Wolf-Web_BobApp_Front \
+            -Dsonar.projectKey=White-Wolf-Web_BobApp \
             -Dsonar.organization=white-wolf-web \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
