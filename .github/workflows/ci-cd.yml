@@ -66,19 +66,19 @@ jobs:
         
               - name: Run SonarQube Analysis (Back-end + Front-end)
                 run: |
+                  cd back  # 👈 IMPORTANT : Se placer dans le dossier contenant pom.xml
                   mvn sonar:sonar \
                     -Dsonar.projectKey=White-Wolf-Web_BobApp \
                     -Dsonar.organization=white-wolf-web \
                     -Dsonar.host.url=https://sonarcloud.io \
                     -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-                    -Dsonar.java.binaries=back/target/classes \
-                    -Dsonar.sources=back/src/main/java,front/src/app \
-                    -Dsonar.tests=back/src/test/java,front/src/app \
+                    -Dsonar.java.binaries=target/classes \
+                    -Dsonar.sources=src/main/java,../front/src/app \
+                    -Dsonar.tests=src/test/java,../front/src/app \
                     -Dsonar.test.inclusions=**/*.java,**/*.spec.ts \
-                    -Dsonar.javascript.lcov.reportPaths=front/coverage/bobapp/lcov.info
+                    -Dsonar.javascript.lcov.reportPaths=../front/coverage/bobapp/lcov.info
                 env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
 
   build-and-push:
     name: Build & Push Docker Images
