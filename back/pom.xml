@@ -16,12 +16,14 @@
     <name>bobapp</name>
     <description>L'application de joke par excellence !</description>
 
-    <properties>
-        <java.version>11</java.version>
-        <sonar.organization>white-wolf-web</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.java.binaries>target/classes</sonar.java.binaries>
-    </properties>
+   <properties>
+    <java.version>11</java.version>
+    <sonar.organization>white-wolf-web</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.java.binaries>target/classes</sonar.java.binaries>
+    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+</properties>
+
 
     <dependencies>
         <!-- Spring WebFlux Starter -->
@@ -46,26 +48,32 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- JaCoCo Maven Plugin -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+       <!-- JaCoCo Maven Plugin -->
+<plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.5</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>prepare-agent</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+            <configuration>
+                <reports>
+                    <report>xml</report> 
+                </reports>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+
 
             <!-- SonarQube Maven Plugin -->
             <plugin>
