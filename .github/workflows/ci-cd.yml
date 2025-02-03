@@ -66,7 +66,7 @@ jobs:
         
               - name: Run SonarQube Analysis (Back-end + Front-end)
                 run: |
-                  cd back  # 👈 IMPORTANT : Se placer dans le dossier contenant pom.xml
+                  cd back
                   mvn sonar:sonar \
                     -Dsonar.projectKey=White-Wolf-Web_BobApp \
                     -Dsonar.organization=white-wolf-web \
@@ -79,6 +79,7 @@ jobs:
                     -Dsonar.javascript.lcov.reportPaths=../front/coverage/bobapp/lcov.info
                 env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
 
   build-and-push:
     name: Build & Push Docker Images
