@@ -22,6 +22,7 @@ jobs:
     defaults:
       run:
         working-directory: front
+
     strategy:
       matrix:
         node-version: [16.x]
@@ -55,9 +56,18 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: SonarCloud Scan
-        uses: sonarsource/sonarqube-scan-action@v2
+        uses: SonarSource/sonarcloud-github-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectBaseDir: front
+          args: >
+            -Dsonar.projectKey=white-wolf-web_BobApp-Front
+            -Dsonar.organization=white-wolf-web
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.sources=src/app
+            -Dsonar.tests=src/app
+            -Dsonar.test.inclusions=**/*.spec.ts
+            -Dsonar.javascript.lcov.reportPaths=coverage/bobapp/lcov.info
+            -Dsonar.exclusions=node_modules/**,dist/**,.vscode/**,.github/**,src/environments/**
