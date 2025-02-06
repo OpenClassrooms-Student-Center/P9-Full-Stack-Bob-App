@@ -1,71 +1,63 @@
-name: CI/CD Frontend Pipeline
+name: Frontend CI
 
 on:
   push:
     paths:
-      - "front/**"
-      - ".github/workflows/frontend.yml"
+      - 'front/**'
+      - '.github/workflows/**'
     branches:
       - main
   pull_request:
     paths:
-      - "front/**"
-      - ".github/workflows/frontend.yml"
-    branches:
-      - main
+      - 'front/**'
+      - '.github/workflows/**'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
-  test-frontend:
-    name: Run Tests & Coverage (Front-end)
+  frontend_build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Dependencies & Run Tests
-        run: |
-          cd front
-          npm install
-          npm run test -- --browsers=ChromeHeadless --no-watch --no-progress --code-coverage
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-      - name: Upload Coverage Report
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Tests and Generate Code Coverage Report
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+
+      - name: Upload Code Coverage Report
         uses: actions/upload-artifact@v4
         with:
-          name: angular-coverage
-          path: front/coverage/
+          name: front-coverage-report
+          path: front/coverage
 
-  sonar-frontend:
-    name: SonarQube Analysis (Front-end)
-    needs: test-frontend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-      - name: Run SonarQube Analysis
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarqube-scan-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectBaseDir: front
-
-  build-and-push-frontend:
-    name: Build & Push Docker Image (Front-end)
-    needs: sonar-frontend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build and Push Frontend Image
-        run: |
-          cd front
-          docker build -t stephanegamot/bobapp-front .
-          docker push stephanegamot/bobapp-front
