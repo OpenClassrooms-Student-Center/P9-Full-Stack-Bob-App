@@ -33,6 +33,7 @@ jobs:
           npm install
           npm run test -- --browsers=ChromeHeadless --no-watch --no-progress --code-coverage
 
+      # 📤 Upload du rapport de couverture généré
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -53,6 +54,13 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
+
+      # 📥 Assure que le fichier de couverture est disponible pour SonarQube
+      - name: Download Coverage Report
+        uses: actions/download-artifact@v4
+        with:
+          name: angular-coverage
+          path: front/coverage/
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v2
