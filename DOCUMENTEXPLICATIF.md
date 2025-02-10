@@ -23,7 +23,7 @@ L'objectif est de garantir la stabilité, la qualité et la sécurité du code a
 
 1️⃣ test-frontend - Exécute les tests & la couverture de code
 
-🚀 Objectif : Vérifier que le code fonctionne correctement et générer un rapport de couverture.
+OBJECTIF : Vérifier que le code fonctionne correctement et générer un rapport de couverture.
 
 * 1.1 Cloner le dépôt (1ere étape)
 ![ok](assets/WF-SS-3.png)
@@ -49,19 +49,19 @@ L'objectif est de garantir la stabilité, la qualité et la sécurité du code a
 ![ok](assets/WF-SS-7.png)
 📌 Ce job démarre uniquement si test-frontend est réussi.
 
-📥 2.1 Cloner le dépôt
+* 2.1 Cloner le dépôt
 ![ok](assets/WF-SS-8.png)
 📌 Recloner le code source pour SonarCloud.
 
-🚀 2.2 Mettre en cache SonarQube
+* 2.2 Mettre en cache SonarQube
 ![ok](assets/WF-SS-9.png)
 📌 Met en cache les fichiers SonarQube pour accélérer les futures exécutions.
 
-📥 2.3 Télécharger le rapport de couverture
+* 2.3 Télécharger le rapport de couverture
 ![ok](assets/WF-SS-10.png)
 📌 Télécharge le rapport de couverture généré précédemment.
 
-🔍 2.4 Exécuter l'analyse SonarCloud
+* 2.4 Exécuter l'analyse SonarCloud
 ![ok](assets/WF-SS-11.png)
 📌 Analyse la qualité du code via SonarCloud en vérifiant :
 Le code source (src/app)
@@ -76,17 +76,19 @@ Le rapport de couverture (coverage/bobapp/lcov.info)
 ![ok](assets/WF-SS-13.png)
 📌 Recloner le dépôt pour la construction de l’image Docker.
 
-🔑 3.2 Se connecter à Docker Hub
+* 3.2 Se connecter à Docker Hub
 ![ok](assets/WF-SS-14.png)
 📌 Se connecte à Docker Hub en utilisant les secrets GitHub.
 
-🏗️ 3.3 Construire et envoyer l’image Docker
+* 3.3 Construire et envoyer l’image Docker
 ![ok](assets/WF-SS-15.png)
 📌 Commandes exécutées :
 
 Créer l’image Docker → docker build -t stephanegamot/bobapp-front .
 Envoyer l’image sur Docker Hub → docker push stephanegamot/bobapp-front
+
 ✅ Résumé
+
 1️⃣ Test du frontend :
 Installe les dépendances.
 Exécute les tests unitaires et génère un rapport de couverture.
