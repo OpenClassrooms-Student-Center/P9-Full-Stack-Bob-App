@@ -27,5 +27,5 @@ jobs:
 
       - name: Exécution des tests
         run: |
-          cd projet/bob/back
+          cd back
           mvn test
