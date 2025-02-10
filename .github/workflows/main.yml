@@ -20,9 +20,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Localisation et changement de répertoire
-        run: |
-          POM_PATH=$(find . -name "pom.xml" -exec dirname {} \;)
-          cd $POM_PATH
+        run: mvn -B package --file pom.xml
 
       - name: Construction avec Maven
         run: mvn clean install
