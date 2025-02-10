@@ -200,8 +200,8 @@ Ce pipeline CI/CD garantit que le code backend est testé, analysé et packagé 
 ✅ Déploiement rapide → L’image Docker est prête à être utilisée en production.
 
 ## Indicateurs de performance (KPIs)
- * KPI 1 - Couverture de Code (Code Coverage)
-📌 Seuil minimal : 80%
+ * KPI 1 - Couverture de Code (Code Coverage)   
+📌 Seuil minimal : 80%   
 La couverture de code est un indicateur clé mesurant le pourcentage du code qui est testé via les tests unitaires.
 Un bon niveau de couverture assure que le code est bien testé et limite les risques de régressions.
 
@@ -209,8 +209,8 @@ INFO :
 Maintenir une couverture de code supérieure à 80% pour garantir une bonne qualité du code.
 Si ce seuil est inférieur à 80%, l’analyse SonarCloud échouera.
 
- * KPI 2 - Taux de Réussite des Builds
-📌 Seuil minimal : 95%
+ * KPI 2 - Taux de Réussite des Builds   
+ 📌 Seuil minimal : 95%   
 Le taux de réussite des builds reflète la stabilité du projet en s'assurant que les tests et analyses ne rencontrent pas d'erreurs.
 
 INFO:
@@ -222,22 +222,24 @@ Identifier rapidement les erreurs bloquantes et éviter les régressions.
 
 ### La couverture du code 
   * FrontEnd
-  ![ok](assets/AnalyseMetrique1.png)
 
-  ![ok](assets/AnalyseMetrique1.png)
+![ok](assets/AnalyseMetrique1.png)
 
-  ![ok](assets/AnalyseMetrique3.png)
+![ok](assets/AnalyseMetrique5.png)
+
+![ok](assets/AnalyseMetrique3.png)
 Analyse :
 * La couverture de code actuelle est inférieure à 80%. Des tests supplémentaires doivent être ajoutés pour atteindre l’objectif.
 * Aucun bug critique n'a été détecté, ce qui est un bon indicateur de qualité.
 * Aucun problème de code dupliqué, ce qui garantit un code propre et maintenable.
 
   * BackEnd
-    ![ok](assets/AnalyseMetrique2.png)
 
- ![ok](assets/AnalyseMetrique6.png)
+![ok](assets/AnalyseMetrique2.png)
 
-  ![ok](assets/AnalyseMetrique4.png)
+![ok](assets/AnalyseMetrique6.png)
+
+![ok](assets/AnalyseMetrique4.png)
 
 Analyse :
 * La couverture de code du back-end dépasse 80%, ce qui est un bon point.
@@ -245,9 +247,9 @@ Analyse :
 * La maintenabilité du code est bonne, avec une note "A" sur SonarCloud.
 
 ## Retour des utilisateurs et points d’amélioration
-Problèmes identifiés :
-📌 Back-end : Aucun problème majeur, mais nous devons maintenir la couverture des tests au-dessus de 80%.
-📌 Front-end : La couverture de code est trop basse (76.92%). Nous devons ajouter des tests unitaires sur certaines parties du code.
+
+📌 Back-end : Aucun problème majeur, mais nous devons maintenir la couverture des tests au-dessus de 80%.   
+📌 Front-end : La couverture de code est trop basse (76.92%). Nous devons ajouter des tests unitaires sur   certaines parties du code.
 
 Actions Correctives :
 * Augmenter la couverture des tests sur le front-end :
