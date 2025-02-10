@@ -193,7 +193,7 @@ Pousse l’image sur Docker Hub.
 
 Ce pipeline CI/CD garantit que le code backend est testé, analysé et packagé avant d’être utilisé en production. 
 
-## 🎯 Pourquoi ce workflow est important ?
+## L'importance de ce WorkFlow
 ✅ Automatisation → Plus besoin de tester et d’analyser le code manuellement.
 ✅ Qualité du code → Vérification continue via SonarCloud.
 ✅ Sécurité → Prévention des vulnérabilités et des bugs critiques.
@@ -205,7 +205,7 @@ Ce pipeline CI/CD garantit que le code backend est testé, analysé et packagé 
 La couverture de code est un indicateur clé mesurant le pourcentage du code qui est testé via les tests unitaires.
 Un bon niveau de couverture assure que le code est bien testé et limite les risques de régressions.
 
-Objectif :
+INFO :
 Maintenir une couverture de code supérieure à 80% pour garantir une bonne qualité du code.
 Si ce seuil est inférieur à 80%, l’analyse SonarCloud échouera.
 
@@ -213,7 +213,7 @@ Si ce seuil est inférieur à 80%, l’analyse SonarCloud échouera.
 📌 Seuil minimal : 95%
 Le taux de réussite des builds reflète la stabilité du projet en s'assurant que les tests et analyses ne rencontrent pas d'erreurs.
 
-Objectif :
+INFO:
 Maintenir un taux de réussite supérieur à 95%.
 Identifier rapidement les erreurs bloquantes et éviter les régressions.
 
@@ -223,10 +223,8 @@ Identifier rapidement les erreurs bloquantes et éviter les régressions.
 ### La couverture du code 
   * FrontEnd
   ![ok](assets/AnalyseMetrique1.png)
-Couverture de code	        76.92%	  ⛔ Doit être améliorée (objectif : 80%)
-Taux de réussite des tests	100%	  ✅ OK
-Nouveaux bugs détectés	    0	      ✅ OK
-Duplications	            0%	      ✅ OK
+
+  ![ok](assets/AnalyseMetrique1.png)
 
   ![ok](assets/AnalyseMetrique3.png)
 Analyse :
@@ -236,10 +234,9 @@ Analyse :
 
   * BackEnd
     ![ok](assets/AnalyseMetrique2.png)
-Couverture de code	        83.33%	✅ OK
-Taux de réussite des tests	100%	✅ OK
-Nouveaux bugs détectés	    0	    ✅ OK
-Maintenabilité	            A	    ✅ OK
+
+ ![ok](assets/AnalyseMetrique6.png)
+
   ![ok](assets/AnalyseMetrique4.png)
 
 Analyse :
