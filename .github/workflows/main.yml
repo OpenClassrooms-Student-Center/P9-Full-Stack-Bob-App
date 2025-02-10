@@ -19,11 +19,8 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Localisation et changement de répertoire
-        run: mvn -B package --file pom.xml
-
       - name: Construction avec Maven
-        run: mvn clean install
+        run: mvn -B package
 
       - name: Exécution des tests
         run: mvn test
