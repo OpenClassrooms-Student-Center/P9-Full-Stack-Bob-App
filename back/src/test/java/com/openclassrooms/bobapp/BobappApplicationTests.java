@@ -10,4 +10,9 @@ class BobappApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void testQuiEchoue() {
+		fail("Ce test est conçu pour échouer");
+	}
+
 }
