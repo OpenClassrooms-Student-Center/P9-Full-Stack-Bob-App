@@ -10,18 +10,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Vérification du dépôt
-      uses: actions/checkout@v4
+      - name: Vérification du dépôt
+        uses: actions/checkout@v4
 
-    - name: Configuration de JDK 11
-      uses: actions/setup-java@v4
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        cache: maven
+      - name: Configuration de JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Construction avec Maven
-      run: mvn -B clean install --file pom.xml
+      - name: Construction avec Maven
+        run: |
+          cd projet/bob/back
+          mvn -B clean install
 
-    - name: Exécution des tests
-      run: mvn -B test --file pom.xml
+      - name: Exécution des tests
+        run: |
+          cd projet/bob/back
+          mvn -B test
