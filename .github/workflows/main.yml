@@ -22,7 +22,7 @@ jobs:
 
       - name: Construction avec Maven
         run: |
-          cd projet/bob/back
+          cd back
           mvn clean install
 
       - name: Exécution des tests
