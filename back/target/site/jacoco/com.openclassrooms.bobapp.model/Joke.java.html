@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Joke.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">bobapp</a> &gt; <a href="index.source.html" class="el_package">com.openclassrooms.bobapp.model</a> &gt; <span class="el_source">Joke.java</span></div><h1>Joke.java</h1><pre class="source lang-java linenums">package com.openclassrooms.bobapp.model;
+
+public class Joke {
+    public String joke;
+    public String response;
+
+<span class="nc" id="L7">    public Joke() {</span>
+<span class="nc" id="L8">    }</span>
+
+<span class="nc" id="L10">    public Joke(String joke, String response) {</span>
+<span class="nc" id="L11">        this.joke = joke;</span>
+<span class="nc" id="L12">        this.response = response;</span>
+<span class="nc" id="L13">    }</span>
+
+    public String getJoke() {
+<span class="nc" id="L16">        return joke;</span>
+    }
+
+    public void setJoke(String joke) {
+<span class="nc" id="L20">        this.joke = joke;</span>
+<span class="nc" id="L21">    }</span>
+
+    public String getResponse() {
+<span class="nc" id="L24">        return response;</span>
+    }
+
+    public void setResponse(String response) {
+<span class="nc" id="L28">        this.response = response;</span>
+<span class="nc" id="L29">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L33">        return &quot;Joke [joke=&quot; + joke + &quot;, response=&quot; + response + &quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
