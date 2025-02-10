@@ -33,7 +33,7 @@ jobs:
           npm install
           npm run test -- --browsers=ChromeHeadless --no-watch --no-progress --code-coverage
 
-      # 📤 Upload du rapport de couverture généré
+      # Upload du rapport de couverture généré
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +70,7 @@ jobs:
         with:
           projectBaseDir: front
           args: >
-            -Dsonar.projectKey=white-wolf-web_BobApp-Front
+            -Dsonar.projectKey=white-wolf-web_BobApp-Front  
             -Dsonar.organization=white-wolf-web
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.sources=src/app
