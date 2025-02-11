@@ -1,0 +1,29 @@
+name: Lancement des tests frontend en Angular
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Vérification du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+
+      - name: Installation des dépendances
+        run: |
+          cd front
+          npm install
+
+      - name: Exécution des tests
+        run: |
+          cd front
+          npm test
