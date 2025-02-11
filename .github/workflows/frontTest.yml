@@ -27,3 +27,4 @@ jobs:
         run: |
           cd front
           npm test
+          
