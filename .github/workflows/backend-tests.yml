@@ -21,15 +21,18 @@ jobs:
 
       - name: Build with Maven
         run: mvn -B clean install
+        working-directory: back
 
       - name: Run Tests
         run: mvn -B test
+        working-directory: back
 
       - name: Generate JaCoCo Report
         run: mvn jacoco:report
+        working-directory: back
 
       - name: Upload JaCoCo Report
         uses: actions/upload-artifact@v2
         with:
           name: jacoco-report
-          path: target/site/jacoco/
+          path: back/target/site/jacoco/
