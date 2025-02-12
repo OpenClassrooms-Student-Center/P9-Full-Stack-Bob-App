@@ -20,12 +20,14 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: front
 
       - name: Run Tests
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        working-directory: front
 
       - name: Upload Test Coverage
         uses: actions/upload-artifact@v2
         with:
           name: test-coverage
-          path: coverage/
+          path: front/coverage/
