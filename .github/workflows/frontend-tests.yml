@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: List files in front directory
+        run: dir front
+        shell: cmd
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
