@@ -1,0 +1,33 @@
+name: Frontend Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: front
+
+      - name: Run Tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
+        working-directory: front
+
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-coverage
+          path: front/coverage/
