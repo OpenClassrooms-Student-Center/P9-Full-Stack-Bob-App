@@ -1,0 +1,42 @@
+name: Front-end - Tests
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - 'front/**'
+    pull_request:
+        branches:
+            - main
+        paths:
+            - 'front/**'
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with: 
+                node-version: 18
+
+            - name: Install dependencies
+              working-directory: front
+              run:
+                npm install
+
+            - name: Run tests with test coverage report
+              working-directory: front
+              run:
+                npx ng test --watch=false --code-coverage=true
+                
+            - name: Upload coverage report
+              uses: actions/upload-artifact@v4
+              with:
+                name: coverage-report
+                path: front/coverage/*

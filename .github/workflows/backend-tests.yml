@@ -1,0 +1,43 @@
+name: Back-end - Tests
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - 'back/**'
+    pull_request:
+        branches:
+            - main
+        paths:
+            - 'back/**'
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Set up JDK 11
+              uses: actions/setup-java@v4
+              with: 
+                java-version: 11
+                distribution: zulu
+
+            - name: Install dependencies
+              working-directory: back
+              run: 
+                mvn clean install
+              
+            - name: Run tests with Jacoco coverage report
+              working-directory: back
+              run:
+                mvn test jacoco:report
+
+            - name: Upload Jacoco report
+              uses: actions/upload-artifact@v4
+              with:
+                name: jacoco-report
+                path: back/target/site/jacoco/*

@@ -1,0 +1,38 @@
+name: Back-end - Quality
+
+on:
+    workflow_dispatch:
+    workflow_run:
+        workflows: ["Back-end - Tests"]
+        types:
+          - completed
+jobs:
+    sonarqube:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+                
+            - name: Build and analyze
+              env:
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACKEND }}
+              working-directory: back
+              run: |
+                mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                  -Dsonar.projectKey=tetho_gerez-un-projet-collaboratif-en-integrant-une-demarche-ci-cd-back-end \
+                  -Dsonar.organization=tetho \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.branch.name=${{ github.ref_name }} \
+                  -Dsonar.java.binaries=target/classes \
+                  -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+                  -Dsonar.java.coveragePlugin=jacoco
+
+            - name: Upload Jacoco report
+              uses: actions/upload-artifact@v4
+              with:
+                name: jacoco-report
+                path: back/target/site/jacoco/*

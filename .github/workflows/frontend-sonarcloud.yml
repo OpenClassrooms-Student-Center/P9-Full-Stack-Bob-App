@@ -1,0 +1,51 @@
+name: Front-end - Quality
+
+on:
+    workflow_dispatch:
+    workflow_run:
+        workflows: ["Front-end - Tests"]
+        types:
+          - completed
+jobs:
+    quality:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with: 
+                node-version: 18
+
+            - name: Install dependencies
+              working-directory: front
+              run:
+                npm install
+
+            - name: Run tests with test coverage report
+              working-directory: front
+              run:
+                npx ng test --watch=false --code-coverage=true
+
+            - name: Run SonarCloud analysis
+              env:
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
+              working-directory: front
+              run: |
+                npm install -g sonar-scanner
+                npx sonar-scanner \
+                  -Dsonar.projectKey=tetho_gerez-un-projet-collaboratif-en-integrant-une-demarche-ci-cd-front-end \
+                  -Dsonar.organization=tetho \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.sources=src \
+                  -Dsonar.exclusions=**/*.spec.ts \
+                  -Dsonar.javascript.lcov.reportPaths=coverage/bobapp/lcov.info
+                  
+            - name: Upload coverage report
+              uses: actions/upload-artifact@v4
+              with:
+                name: angular-coverage-report
+                path: front/coverage/*

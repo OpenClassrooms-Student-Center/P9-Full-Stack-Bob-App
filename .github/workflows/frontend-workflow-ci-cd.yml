@@ -1,0 +1,108 @@
+name: Front-end - Workflow CI/CD
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - 'front/**'
+    pull_request:
+        branches:
+            - main
+        paths:
+            - 'front/**'
+    
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+                
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with: 
+                node-version: 18
+
+            - name: Install dependencies
+              working-directory: front
+              run:
+                npm install
+
+            - name: Run tests with test coverage report
+              working-directory: front
+              run:
+                npx ng test --watch=false --code-coverage=true
+                
+            - name: Upload coverage report
+              uses: actions/upload-artifact@v4
+              with:
+                name: tests-coverage-report
+                path: front/coverage/*
+
+    quality:
+        runs-on: ubuntu-latest
+        needs: tests
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with: 
+                node-version: 18
+
+            - name: Install dependencies
+              working-directory: front
+              run:
+                npm install
+
+            - name: Run tests with test coverage report
+              working-directory: front
+              run:
+                npx ng test --watch=false --code-coverage=true
+
+            - name: Run SonarCloud analysis
+              env:
+                SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONTEND }}
+              working-directory: front
+              run: |
+                npm install -g sonar-scanner
+                npx sonar-scanner \
+                  -Dsonar.projectKey=tetho_gerez-un-projet-collaboratif-en-integrant-une-demarche-ci-cd-front-end \
+                  -Dsonar.organization=tetho \
+                  -Dsonar.host.url=https://sonarcloud.io \
+                  -Dsonar.sources=src \
+                  -Dsonar.exclusions=**/*.spec.ts \
+                  -Dsonar.javascript.lcov.reportPaths=coverage/bobapp/lcov.info
+                  
+            - name: Upload coverage report
+              uses: actions/upload-artifact@v4
+              with:
+                name: quality-coverage-report
+                path: front/coverage/*
+
+    docker:
+        runs-on: ubuntu-latest
+        needs: quality
+        
+        steps:
+            - name: Clone the repository into the GitHub Actions runner environment
+              uses: actions/checkout@v4
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v2
+              with:
+                username: ${{ secrets.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Build Docker Image
+              run:
+                docker build -t ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest -f ./front/Dockerfile ./front
+        
+            - name: Push Docker Image
+              run:
+                docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
