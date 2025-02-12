@@ -1,16 +1,13 @@
 name: Frontend Tests
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
@@ -28,7 +25,7 @@ jobs:
         run: npm test -- --watch=false --browsers=ChromeHeadless --code-coverage
 
       - name: Upload Test Coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: test-coverage
           path: coverage/
